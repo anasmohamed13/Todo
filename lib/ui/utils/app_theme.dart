@@ -13,11 +13,16 @@ abstract class AppTheme {
       onPrimary: AppColors.white,
     ),
     appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primary, centerTitle: true),
+      elevation: 0,
+      backgroundColor: AppColors.primary,
+      centerTitle: true,
+    ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AppColors.white,
       selectedItemColor: AppColors.primary,
       unselectedItemColor: Colors.grey,
+      selectedIconTheme: IconThemeData(size: 33),
+      unselectedIconTheme: IconThemeData(size: 33, color: AppColors.grey),
     ),
   );
 
