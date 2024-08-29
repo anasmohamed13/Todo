@@ -5,4 +5,10 @@ extension TimeExtension on DateTime {
     DateFormat dateFormat = DateFormat('dd/MM/yyyy');
     return dateFormat.format(this);
   }
+
+  String get dayName {
+    List<String> days = ['sat', 'sun', 'mon', 'tue', 'wed', 'thurs', 'fri'];
+
+    return days[weekday - 1];
+  }
 }
