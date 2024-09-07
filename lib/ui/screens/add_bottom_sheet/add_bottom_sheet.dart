@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, sized_box_for_whitespace
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:todoproject/ui/utils/app_color.dart';
 import 'package:todoproject/ui/utils/app_style.dart';
@@ -27,6 +28,8 @@ class AddBottomSheet extends StatefulWidget {
 
 class _AddBottomSheetState extends State<AddBottomSheet> {
   DateTime selectedDate = DateTime.now();
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -41,14 +44,17 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
             textAlign: TextAlign.center,
             style: AppStyle.bottomSheetTitle,
           ),
-          const TextField(
-            decoration: InputDecoration(hintText: 'enter task title '),
+          TextField(
+            decoration: const InputDecoration(hintText: 'enter task title '),
+            controller: titleController,
           ),
           const SizedBox(
             height: 8,
           ),
-          const TextField(
-            decoration: InputDecoration(hintText: 'enter task description'),
+          TextField(
+            decoration:
+                const InputDecoration(hintText: 'enter task description'),
+            controller: descriptionController,
           ),
           const SizedBox(
             height: 12,
@@ -76,12 +82,27 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
           ),
           const Spacer(),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              addToDoToFireStore();
+            },
             child: const Text('Add'),
           ),
         ],
       ),
     );
+  }
+
+  void addToDoToFireStore() {
+    CollectionReference todoCollection =
+        FirebaseFirestore.instance.collection("todo");
+    DocumentReference doc = todoCollection.doc();
+    doc.set({
+      "id": doc.id,
+      "title": titleController.text,
+      "descripition": descriptionController.text,
+      "date": selectedDate,
+      "isDone": false,
+    });
   }
 
   void showMyDatePicker() async {
