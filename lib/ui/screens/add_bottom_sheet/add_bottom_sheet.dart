@@ -1,7 +1,8 @@
-// ignore_for_file: non_constant_identifier_names, sized_box_for_whitespace
+// ignore_for_file: non_constant_identifier_names, sized_box_for_whitespace, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:todoproject/model/tododm.dart';
 import 'package:todoproject/ui/utils/app_color.dart';
 import 'package:todoproject/ui/utils/app_style.dart';
 import 'package:todoproject/ui/utils/extension_date.dart';
@@ -92,16 +93,22 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
     );
   }
 
-  void addToDoToFireStore() {
+  void addToDoToFireStore() async {
     CollectionReference todoCollection =
-        FirebaseFirestore.instance.collection("todo");
+        FirebaseFirestore.instance.collection(ToDoDM.collectionName);
     DocumentReference doc = todoCollection.doc();
-    doc.set({
-      "id": doc.id,
-      "title": titleController.text,
-      "descripition": descriptionController.text,
-      "date": selectedDate,
-      "isDone": false,
+    ToDoDM toDoDM = ToDoDM(
+        id: doc.id,
+        title: titleController.text,
+        date: selectedDate,
+        description: descriptionController.text,
+        isDone: false);
+    doc
+        .set(
+      toDoDM.tojson(),
+    )
+        .timeout(const Duration(milliseconds: 500), onTimeout: () {
+      Navigator.pop(context);
     });
   }
 
