@@ -87,7 +87,7 @@ class Todo extends StatelessWidget {
   Container buildCheckedState() {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10), color: AppColors.primary),
+          borderRadius: BorderRadius.circular(10), color: AppColors.white),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Text(
         "Done",
