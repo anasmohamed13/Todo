@@ -1,77 +1,86 @@
-// ignore_for_file: avoid_print
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
-import 'package:todoproject/model/tododm.dart';
+import 'package:provider/provider.dart';
+import 'package:todoproject/ui/providers/list_provider.dart';
+
 import 'package:todoproject/ui/screens/home/tabs/list/todo.dart';
 import 'package:todoproject/ui/utils/app_color.dart';
 import 'package:todoproject/ui/utils/app_style.dart';
 import 'package:todoproject/ui/utils/extension_date.dart';
 
-class ListTab extends StatefulWidget {
-  const ListTab({super.key});
+class TodosList extends StatefulWidget {
+  const TodosList({super.key});
 
   @override
-  State<ListTab> createState() => _ListTabState();
+  State<TodosList> createState() => _TodosListState();
 }
 
-class _ListTabState extends State<ListTab> {
-  DateTime selectedCalendarDate = DateTime.now();
-  List<ToDoDM> todosList = [];
+class _TodosListState extends State<TodosList> {
+  late ListProvider listProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      /// This block is called after build and it is only called only once
+      listProvider.loadTodoFromFirestore();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    getToDoListFromFireStore();
+    listProvider = Provider.of(context);
+
     return Column(
       children: [
         buildCalendar(),
         Expanded(
-          flex: 67,
+          flex: 83,
           child: ListView.builder(
-              itemCount: todosList.length,
+              itemCount: listProvider.todos.length,
               itemBuilder: (context, index) {
-                return ToDo(item: todosList[index]);
+                return Todo(
+                  item: listProvider.todos[index],
+                );
               }),
-        ),
+        )
       ],
     );
   }
 
-  buildCalendar() {
+  Expanded buildCalendar() {
     return Expanded(
-      flex: 13,
+      flex: 17,
       child: Stack(
         children: [
           Column(
             children: [
               Expanded(
-                child: Container(
-                  color: AppColors.primary,
-                ),
-              ),
+                  child: Container(
+                color: AppColors.primary,
+              )),
               Expanded(
-                child: Container(
-                  color: AppColors.bgColor,
-                ),
-              ),
+                  child: Container(
+                color: AppColors.bgColor,
+              ))
             ],
           ),
           EasyInfiniteDateTimeLine(
-            firstDate: DateTime.now().subtract(const Duration(days: 365)),
-            focusDate: selectedCalendarDate,
-            lastDate: DateTime.now().add(const Duration(days: 365)),
-            onDateChange: (selectedDate) {},
             showTimelineHeader: false,
-            itemBuilder: (context, date, isSelected, ontap) {
+            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+            focusDate: listProvider.selectedCalendarDate,
+            lastDate: DateTime.now().add(const Duration(days: 365)),
+            itemBuilder: (context, date, isSelected, onDateTapped) {
               return InkWell(
                 onTap: () {
                   setState(() {
-                    selectedCalendarDate = date;
+                    listProvider.selectedCalendarDate = date;
+                    listProvider.loadTodoFromFirestore();
                   });
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                      color: AppColors.white,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(22)),
                   child: Column(
                     children: [
@@ -89,11 +98,16 @@ class _ListTabState extends State<ListTab> {
                             ? AppStyle.selectedCalendarDayStyle
                             : AppStyle.unSelectedCalendarDayStyle,
                       ),
-                      const Spacer(),
+                      const Spacer()
                     ],
                   ),
                 ),
               );
+            },
+            onDateChange: (selectedDate) {
+              setState(() {
+                listProvider.selectedCalendarDate = selectedDate;
+              });
             },
           ),
         ],
@@ -101,20 +115,5 @@ class _ListTabState extends State<ListTab> {
     );
   }
 
-  void getToDoListFromFireStore() async {
-    CollectionReference todocollection =
-        FirebaseFirestore.instance.collection(ToDoDM.collectionName);
-    QuerySnapshot querySnapshot = await todocollection.get();
-    List<QueryDocumentSnapshot> documents = querySnapshot.docs;
-    todosList = documents.map((doc) {
-      Map<String, dynamic> json = doc.data() as Map<String, dynamic>;
-      return ToDoDM.fromjson(json);
-    }).toList();
-    todosList = todosList
-        .where((todo) =>
-            todo.date.year == selectedCalendarDate.year &&
-            todo.date.month == selectedCalendarDate.month &&
-            todo.date.day == selectedCalendarDate.day)
-        .toList();
-  }
+  void onDateTapped() {}
 }

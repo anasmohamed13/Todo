@@ -1,118 +1,90 @@
-// ignore_for_file: non_constant_identifier_names, sized_box_for_whitespace, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:todoproject/model/tododm.dart';
+import 'package:todoproject/ui/providers/list_provider.dart';
 import 'package:todoproject/ui/utils/app_color.dart';
 import 'package:todoproject/ui/utils/app_style.dart';
-import 'package:todoproject/ui/utils/extension_date.dart';
 
 class AddBottomSheet extends StatefulWidget {
   const AddBottomSheet({super.key});
 
   @override
   State<AddBottomSheet> createState() => _AddBottomSheetState();
-
-  static void ShowBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (context) {
-        return Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: const AddBottomSheet(),
-        );
-      },
-    );
-  }
 }
 
 class _AddBottomSheetState extends State<AddBottomSheet> {
   DateTime selectedDate = DateTime.now();
-  TextEditingController titleController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
+  String title = "";
+  String description = "";
+  late ListProvider listProvider;
 
   @override
   Widget build(BuildContext context) {
+    listProvider = Provider.of(context);
     return Container(
-      padding: const EdgeInsets.all(16),
-      height: MediaQuery.of(context).size.height * 0.4,
+      height: MediaQuery.of(context).size.height * .5,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(22)),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'add new task',
-            textAlign: TextAlign.center,
+            "Add new task",
             style: AppStyle.bottomSheetTitle,
+            textAlign: TextAlign.center,
           ),
           TextField(
-            decoration: const InputDecoration(hintText: 'enter task title '),
-            controller: titleController,
+            decoration: const InputDecoration(hintText: "Enter task title"),
+            onChanged: (text) {
+              title = text;
+            },
           ),
           const SizedBox(
             height: 8,
           ),
           TextField(
-            decoration:
-                const InputDecoration(hintText: 'enter task description'),
-            controller: descriptionController,
+            decoration: const InputDecoration(
+              hintText: "Enter task description",
+            ),
+            onChanged: (text) {
+              description = text;
+            },
+            minLines: 6,
+            maxLines: 10,
           ),
           const SizedBox(
             height: 12,
           ),
-          Text(
-            'select date',
-            style: AppStyle.bottomSheetTitle.copyWith(fontSize: 16),
-          ),
+          const Text("Select time", style: AppStyle.bottomSheetTitle),
           const SizedBox(
-            height: 8,
+            height: 12,
           ),
           InkWell(
             onTap: () {
-              showMyDatePicker();
+              showMyDatePicker(context);
             },
             child: Text(
-              selectedDate.toFormatteDate,
-              style: AppStyle.bottomSheetTitle.copyWith(
-                fontSize: 16,
-                color: AppColors.grey,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
+                "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                textAlign: TextAlign.center,
+                style:
+                    AppStyle.bottomSheetTitle.copyWith(color: AppColors.grey)),
           ),
           const Spacer(),
           ElevatedButton(
-            onPressed: () {
-              addToDoToFireStore();
-            },
-            child: const Text('Add'),
-          ),
+              onPressed: () {
+                addTodoToFirestore();
+              },
+              child: const Text("Add"))
         ],
       ),
     );
   }
 
-  void addToDoToFireStore() async {
-    CollectionReference todoCollection =
-        FirebaseFirestore.instance.collection(ToDoDM.collectionName);
-    DocumentReference doc = todoCollection.doc();
-    ToDoDM toDoDM = ToDoDM(
-        id: doc.id,
-        title: titleController.text,
-        date: selectedDate,
-        description: descriptionController.text,
-        isDone: false);
-    doc
-        .set(
-      toDoDM.tojson(),
-    )
-        .timeout(const Duration(milliseconds: 500), onTimeout: () {
-      Navigator.pop(context);
-    });
-  }
-
-  void showMyDatePicker() async {
+  showMyDatePicker(BuildContext context) async {
     selectedDate = await showDatePicker(
             context: context,
             initialDate: selectedDate,
@@ -120,5 +92,19 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
             lastDate: DateTime.now().add(const Duration(days: 365))) ??
         selectedDate;
     setState(() {});
+  }
+
+  void addTodoToFirestore() async {
+    CollectionReference todosCollection = TodoDM.userTodosCollection;
+    DocumentReference documentReference = todosCollection.doc();
+    TodoDM newTodo = TodoDM(
+        id: documentReference.id,
+        title: title,
+        description: description,
+        date: selectedDate,
+        isDone: false);
+    await documentReference.set(newTodo.toJson());
+    listProvider.loadTodoFromFirestore();
+    Navigator.pop(context);
   }
 }

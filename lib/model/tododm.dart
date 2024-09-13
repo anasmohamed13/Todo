@@ -1,34 +1,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:todoproject/model/app_users.dart';
 
-class ToDoDM {
-  static const String collectionName = "todo";
+class TodoDM {
+  static const collectionName = "todos";
   late String id;
   late String title;
-  late DateTime date;
   late String description;
+  late DateTime date;
   late bool isDone;
 
-  ToDoDM(
-      {required this.id,
-      required this.title,
-      required this.date,
-      required this.description,
-      required this.isDone});
+  TodoDM({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.date,
+    required this.isDone,
+  });
 
-  ToDoDM.fromjson(Map<String, dynamic> json) {
+  static CollectionReference get userTodosCollection =>
+      FirebaseFirestore.instance
+          .collection(AppUser.collectionName)
+          .doc(AppUser.currentUser!.id)
+          .collection(TodoDM.collectionName);
+
+  TodoDM.fromJson(Map<String, dynamic> json) {
     id = json["id"];
     title = json["title"];
-    description = json["description"] ?? "";
-    Timestamp timestamp = json["date"];
-    date = timestamp.toDate();
+    description = json["description"];
+    int dateAsInt = json["date"];
+    date = DateTime.fromMillisecondsSinceEpoch(dateAsInt);
     isDone = json["isDone"];
   }
 
-  Map<String, dynamic> tojson() => {
+  Map<String, dynamic> toJson() => {
         "id": id,
         "title": title,
         "description": description,
-        "date": date,
-        "isDone": isDone,
+        "date": date.millisecondsSinceEpoch,
+        "isDone": isDone
       };
 }
