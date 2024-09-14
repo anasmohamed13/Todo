@@ -6,14 +6,20 @@ import 'package:provider/provider.dart';
 
 import 'package:todoproject/model/tododm.dart';
 import 'package:todoproject/ui/providers/list_provider.dart';
+import 'package:todoproject/ui/screens/update_screen/update_screen.dart';
 import 'package:todoproject/ui/utils/app_color.dart';
 import 'package:todoproject/ui/utils/app_style.dart';
 
-class Todo extends StatelessWidget {
+class Todo extends StatefulWidget {
   final TodoDM item;
 
-  Todo({super.key, required this.item});
+  const Todo({super.key, required this.item});
 
+  @override
+  State<Todo> createState() => _TodoState();
+}
+
+class _TodoState extends State<Todo> {
   late ListProvider listProvider;
 
   @override
@@ -26,7 +32,7 @@ class Todo extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) async {
-              await TodoDM.userTodosCollection.doc(item.id).delete();
+              await TodoDM.userTodosCollection.doc(widget.item.id).delete();
               listProvider.loadTodoFromFirestore();
             },
             foregroundColor: AppColors.white,
@@ -70,42 +76,49 @@ class Todo extends StatelessWidget {
         height: MediaQuery.of(context).size.height * .07,
         width: 4,
         decoration: BoxDecoration(
-            color: item.isDone ? Colors.green : AppColors.primary,
+            color: widget.item.isDone ? Colors.green : AppColors.primary,
             borderRadius: BorderRadius.circular(10)),
       );
 
   buildTodoInfo() => Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Spacer(),
-            Text(
-              item.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppStyle.bottomSheetTitle.copyWith(
-                  color: item.isDone ? Colors.green : AppColors.primary),
-            ),
-            const Spacer(),
-            Text(
-              item.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppStyle.bodyTextStyle,
-            ),
-            const Spacer(),
-          ],
+        child: InkWell(
+          onTap: () {
+            Navigator.pushNamed(context, UpdateScreen.routeName,
+                arguments: widget.item);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Spacer(),
+              Text(
+                widget.item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppStyle.bottomSheetTitle.copyWith(
+                    color:
+                        widget.item.isDone ? Colors.green : AppColors.primary),
+              ),
+              const Spacer(),
+              Text(
+                widget.item.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppStyle.bodyTextStyle,
+              ),
+              const Spacer(),
+            ],
+          ),
         ),
       );
 
   buildTodoState() => InkWell(
         onTap: () async {
           await TodoDM.userTodosCollection
-              .doc(item.id)
-              .update({"isDone": !item.isDone});
+              .doc(widget.item.id)
+              .update({"isDone": !widget.item.isDone});
           listProvider.loadTodoFromFirestore();
         },
-        child: item.isDone ? buildCheckedState() : buildUnCheckedState(),
+        child: widget.item.isDone ? buildCheckedState() : buildUnCheckedState(),
       );
 
   Container buildCheckedState() {
@@ -117,7 +130,7 @@ class Todo extends StatelessWidget {
         "Done",
         style: TextStyle(
             fontSize: 30,
-            color: item.isDone ? Colors.green : AppColors.primary),
+            color: widget.item.isDone ? Colors.green : AppColors.primary),
       ),
     );
   }

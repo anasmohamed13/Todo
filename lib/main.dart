@@ -6,6 +6,7 @@ import 'package:todoproject/ui/providers/list_provider.dart';
 import 'package:todoproject/ui/screens/auth/login/login_screen.dart';
 import 'package:todoproject/ui/screens/auth/register/register_screen.dart';
 import 'package:todoproject/ui/screens/home/home.dart';
+import 'package:todoproject/ui/screens/update_screen/update_screen.dart';
 import 'package:todoproject/ui/utils/app_theme.dart';
 
 Future<void> main() async {
@@ -35,6 +36,7 @@ class ToDoApp extends StatelessWidget {
         HomeScreen.routeName: (context) => const HomeScreen(),
         LoginScreen.routeName: (context) => const LoginScreen(),
         RegisterScreen.routeName: (context) => const RegisterScreen(),
+        UpdateScreen.routeName: (context) => const UpdateScreen(),
       },
       initialRoute: LoginScreen.routeName,
     );

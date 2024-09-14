@@ -3,7 +3,7 @@ import 'package:todoproject/ui/utils/app_color.dart';
 
 abstract class AppStyle {
   static const TextStyle appBarStyle = TextStyle(
-      fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.white);
+      fontSize: 27, fontWeight: FontWeight.bold, color: AppColors.white);
   static const TextStyle titlesTextStyle = TextStyle(
       fontSize: 27, fontWeight: FontWeight.bold, color: AppColors.primary);
 
