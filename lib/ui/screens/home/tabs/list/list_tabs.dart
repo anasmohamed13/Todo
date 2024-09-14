@@ -22,7 +22,6 @@ class _TodosListState extends State<TodosList> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      /// This block is called after build and it is only called only once
       listProvider.loadTodoFromFirestore();
     });
   }

@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 import 'package:todoproject/model/tododm.dart';
@@ -18,26 +19,49 @@ class Todo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     listProvider = Provider.of(context);
-    return Container(
-      height: MediaQuery.of(context).size.height * .13,
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 22),
-      child: Row(
+
+    return Slidable(
+      startActionPane: ActionPane(
+        motion: const BehindMotion(),
         children: [
-          buildVerticalLine(context),
-          const SizedBox(
-            width: 24,
-          ),
-          buildTodoInfo(),
-          const SizedBox(
-            width: 16,
-          ),
-          buildTodoState()
+          SlidableAction(
+            onPressed: (context) async {
+              await TodoDM.userTodosCollection.doc(item.id).delete();
+              listProvider.loadTodoFromFirestore();
+            },
+            foregroundColor: AppColors.white,
+            backgroundColor: AppColors.red,
+            icon: Icons.delete,
+            label: "delete",
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
+            ),
+          )
         ],
+      ),
+      child: Container(
+        height: MediaQuery.of(context).size.height * .15,
+        width: MediaQuery.of(context).size.width * .90,
+        decoration: BoxDecoration(
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        child: Row(
+          children: [
+            buildVerticalLine(context),
+            const SizedBox(
+              width: 24,
+            ),
+            buildTodoInfo(),
+            const SizedBox(
+              width: 16,
+            ),
+            buildTodoState()
+          ],
+        ),
       ),
     );
   }
