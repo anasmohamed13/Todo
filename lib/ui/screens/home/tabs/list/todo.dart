@@ -40,9 +40,11 @@ class _TodoState extends State<Todo> {
             icon: Icons.delete,
             label: "delete",
             borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              bottomLeft: Radius.circular(20),
+              topLeft: Radius.circular(30),
+              bottomLeft: Radius.circular(30),
             ),
+            padding: const EdgeInsets.all(9),
+            autoClose: true,
           )
         ],
       ),
@@ -54,7 +56,7 @@ class _TodoState extends State<Todo> {
           borderRadius: BorderRadius.circular(22),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 11),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
         child: Row(
           children: [
             buildVerticalLine(context),
