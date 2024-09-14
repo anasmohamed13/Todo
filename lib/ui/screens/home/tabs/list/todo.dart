@@ -54,7 +54,7 @@ class _TodoState extends State<Todo> {
           borderRadius: BorderRadius.circular(22),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 11),
         child: Row(
           children: [
             buildVerticalLine(context),
